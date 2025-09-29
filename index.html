@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Summarizer - Local AI for Chrome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            background: white;
+            padding: 5rem 0;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #1f2937;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .feature-card p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .privacy-section {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+
+        .privacy-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .privacy-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .privacy-highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .privacy-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .privacy-check {
+            font-size: 1.5rem;
+        }
+
+        .tech-specs {
+            background: #f8fafc;
+            padding: 4rem 0;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .spec-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .download-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .keyboard-shortcuts {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .shortcut-key {
+            background: #374151;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            background: #1f2937;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        .privacy-policy {
+            background: white;
+            padding: 4rem 0;
+        }
+
+        .privacy-policy-content {
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .privacy-policy h2 {
+            color: #1f2937;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-align: center;
+        }
+
+        .privacy-policy h3 {
+            color: #374151;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.3rem;
+        }
+
+        .privacy-policy p {
+            margin-bottom: 1rem;
+            color: #4b5563;
+        }
+
+        .privacy-policy ul {
+            margin: 1rem 0;
+            padding-left: 2rem;
+            color: #4b5563;
+        }
+
+        .privacy-policy li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">AI Summarizer</a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+                <li><a href="#download">Download</a></li>
+                <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>AI Summarizer</h1>
+                <p>Local AI-powered text processing with Chrome's built-in Gemini Nano. Rephrase, summarize, and ask questions - all processed privately on your device.</p>
+                <div class="cta-buttons">
+                    <a href="#download" class="btn btn-primary">
+                        <span>📥</span> Download Extension
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Powerful Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">🧠</span>
+                        <h3>Google Chrome's Local AI</h3>
+                        <p>Leverages Google Chrome's built-in Gemini Nano model for private, on-device AI processing. Google designed this to keep your data local.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">✨</span>
+                        <h3>Three AI Modes</h3>
+                        <p>Rephrase text for clarity, create concise summaries, or ask questions in a chat-style interface.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">⚡</span>
+                        <h3>Real-time Streaming</h3>
+                        <p>Watch responses appear in real-time as the AI generates them, just like ChatGPT.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🎯</span>
+                        <h3>Smart Text Selection</h3>
+                        <p>Select any text on any webpage and instantly see rephrase and summarize options in a smart overlay.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">💬</span>
+                        <h3>Dual Interface</h3>
+                        <p>Use the popup for extended conversations or the overlay system for quick text processing.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">⌨️</span>
+                        <h3>Keyboard Shortcuts</h3>
+                        <p>Lightning-fast access with customizable keyboard shortcuts for all three AI modes.</p>
+                    </div>
+                </div>
+
+                <div class="keyboard-shortcuts">
+                    <h3 style="text-align: center; margin-bottom: 1.5rem; color: #1f2937;">Keyboard Shortcuts</h3>
+                    <div class="shortcuts-grid">
+                        <div class="shortcut-item">
+                            <span>Rephrase Text</span>
+                            <span class="shortcut-key">Ctrl+Alt+R</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Summarize Text</span>
+                            <span class="shortcut-key">Ctrl+Alt+S</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Ask Question</span>
+                            <span class="shortcut-key">Ctrl+Alt+A</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="privacy" class="privacy-section">
+            <div class="container">
+                <div class="privacy-content">
+                    <h2>Privacy First</h2>
+                    <div class="privacy-highlights">
+                        <div class="privacy-item">
+                            <span class="privacy-check">✅</span>
+                            <span>Text processed locally via Chrome's Gemini Nano</span>
+                        </div>
+                        <div class="privacy-item">
+                            <span class="privacy-check">🔒</span>
+                            <span>AI processing stays on your device per Google's design</span>
+                        </div>
+                        <div class="privacy-item">
+                            <span class="privacy-check">📊</span>
+                            <span>Basic usage analytics help us improve the extension</span>
+                        </div>
+                        <div class="privacy-item">
+                            <span class="privacy-check">⚡</span>
+                            <span>Works offline once Chrome downloads the AI model</span>
+                        </div>
+                    </div>
+                    <p style="text-align: center; font-size: 1.1rem; opacity: 0.9;">
+                        We prioritize your privacy while using basic analytics to improve our extension. Your text processing stays private 
+                        through Google Chrome's local Gemini Nano implementation, while we collect minimal usage statistics to enhance your experience.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech-specs" class="tech-specs">
+            <div class="container">
+                <h2 style="text-align: center; margin-bottom: 3rem; color: #1f2937;">Technical Specifications</h2>
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <h3>Browser Requirements</h3>
+                        <p><strong>Chrome 127+</strong> required for Gemini Nano AI features</p>
+                    </div>
+                    <div class="spec-item">
+                        <h3>Extension Architecture</h3>
+                        <p><strong>Manifest V3</strong> with modern Chrome extension standards</p>
+                    </div>
+                    <div class="spec-item">
+                        <h3>AI Technology</h3>
+                        <p><strong>Gemini Nano</strong> via Chrome's built-in Prompt API</p>
+                    </div>
+                    <div class="spec-item">
+                        <h3>Performance</h3>
+                        <p><strong>Optimized</strong> with pre-warming and intelligent caching</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="download" class="download-section">
+            <div class="container">
+                <h2>Get Started Today</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;">
+                    Download the AI Summarizer extension and experience the power of local AI processing.
+                </p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn btn-primary">
+                        <span>📥</span> Download from Chrome Web Store
+                    </a>
+                </div>
+                <p style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
+                    Requires Chrome 127+ with Gemini Nano enabled
+                </p>
+            </div>
+        </section>
+
+        <section id="privacy-policy" class="privacy-policy">
+            <div class="container">
+                <div class="privacy-policy-content">
+                    <h2>Privacy Policy</h2>
+                    
+                    <p><strong>Last updated:</strong> September 28, 2025</p>
+                    
+                    <h3>1. Information We Collect</h3>
+                    <p>The AI Summarizer extension collects minimal usage analytics to help us improve the extension experience. We collect basic information such as:</p>
+                    <ul>
+                        <li>Extension usage frequency and feature utilization</li>
+                        <li>General performance metrics and error reports</li>
+                        <li>Browser version and extension version for compatibility</li>
+                    </ul>
+                    <p><strong>Important:</strong> Your actual text content is never collected, stored, or transmitted. All text processing is performed locally on your device using Google Chrome's built-in Gemini Nano AI model.</p>
+                    
+                    <h3>2. How We Use Information</h3>
+                    <p>The basic analytics we collect are used solely to:</p>
+                    <ul>
+                        <li>Improve extension performance and user experience</li>
+                        <li>Identify and fix bugs or compatibility issues</li>
+                        <li>Understand which features are most valuable to users</li>
+                    </ul>
+                    <p>We do not sell, share, or use this information for advertising purposes.</p>
+                    
+                    <h3>3. AI Text Processing</h3>
+                    <p>All AI processing happens locally on your device using Google Chrome's Gemini Nano model. According to Google's implementation:</p>
+                    <ul>
+                        <li>Your text is processed entirely on your device</li>
+                        <li>No text content is sent to Google's servers or any external servers</li>
+                        <li>The AI model runs locally within your browser</li>
+                        <li>No conversation history is stored permanently by our extension</li>
+                    </ul>
+                    
+                    <h3>4. Third-Party Services</h3>
+                    <p>The extension uses the following third-party services:</p>
+                    <ul>
+                        <li><strong>Google Chrome's Gemini Nano:</strong> AI text processing runs locally on your device as designed by Google. No text data is transmitted to Google through this AI model.</li>
+                        <li><strong>Google Analytics:</strong> We use Google Analytics to collect basic usage statistics (feature usage, performance metrics) to improve the extension. This does not include your text content.</li>
+                    </ul>
+                    
+                    <h3>5. Data Security</h3>
+                    <p>Your text content benefits from the highest level of security because it never leaves your device. All AI processing happens locally through Google Chrome's implementation of Gemini Nano. Any analytics data we collect is transmitted securely and contains no personal text content.</p>
+                    
+                    <h3>6. Permissions</h3>
+                    <p>The extension requests the following permissions:</p>
+                    <ul>
+                        <li><strong>activeTab:</strong> To interact with the current webpage for text selection features</li>
+                        <li><strong>host_permissions:</strong> To provide text processing overlay on all websites</li>
+                    </ul>
+                    
+                    <h3>7. Updates to This Policy</h3>
+                    <p>We may update this privacy policy from time to time. Any changes will be posted on this page with an updated revision date.</p>
+                    
+                    <h3>8. Contact Information</h3>
+                    <p>If you have any questions about this privacy policy or the extension, please contact us through our GitHub repository or email us at [YOUR_EMAIL].</p>
+                    
+                    <h3>9. Children's Privacy</h3>
+                    <p>Our extension collects only basic usage analytics and does not collect personal information from anyone, including children under 13. All text processing is done locally on the user's device through Google Chrome's Gemini Nano implementation.</p>
+                    
+                    <h3>10. Your Rights</h3>
+                    <p>Since your text content is processed locally and never collected, there is no personal text data to access, modify, or delete. For the basic analytics we collect, you can contact us to request information about what data we have collected about your extension usage.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/your-username/ai-summarizer-extension">GitHub</a>
+                <a href="privacy-policy.html">Privacy Policy</a>
+                <a href="mailto:your-email@domain.com">Contact</a>
+                <a href="https://github.com/your-username/ai-summarizer-extension/issues">Report Issues</a>
+            </div>
+            <p>&copy; 2025 AI Summarizer Extension. Built with ❤️ for privacy-conscious users.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll effect to header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+
+        // Animate feature cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
